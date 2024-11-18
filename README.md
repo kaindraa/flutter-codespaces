@@ -48,16 +48,6 @@ Pengguna yang belum melakukan register dan login hanya dapat:
 - Melakukan pencarian dan filtering daftar makanan dan restoran.
 - Membuka fitur food preview dan restaurant preview.
 
-### 2. ⌨️🖱️ Admin
-Role admin memiliki akses untuk mengelola aplikasi.
-- Menghapus rating & ulasan makanan
-- Menghapus review makanan
-- Menambah restaurant
-- Menghapus restaurant
-- Menambah makanan
-- Menghapus makanan
-- Menghapus chat forum
-
 ## Alur Integrasi
 *[TO DO]*
 
@@ -65,5 +55,5 @@ Role admin memiliki akses untuk mengelola aplikasi.
 Dataset yang digunakan berasal dari [Kaggle - Indonesia food delivery Gofood product list](https://www.kaggle.com/datasets/ariqsyahalam/indonesia-food-delivery-gofood-product-list).
 
 ## Berita Acara Kelompok F10
-Berita acara kelompok F10 dapat diaksis di [link berikut](https://docs.google.com/spreadsheets/d/1wk12z7HfZcbrUoaX8TTx7DbVCwNlyiNLAyX6wdyXSx8/edit?gid=0#gid=0)
+Berita acara kelompok F10 dapat diakses di [link berikut](https://docs.google.com/spreadsheets/d/1wk12z7HfZcbrUoaX8TTx7DbVCwNlyiNLAyX6wdyXSx8/edit?gid=0#gid=0)
 
