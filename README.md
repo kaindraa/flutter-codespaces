@@ -58,9 +58,11 @@ Role admin memiliki akses untuk mengelola aplikasi.
 - Menghapus makanan
 - Menghapus chat forum
 
+## Alur Integrasi
+*[TO DO]*
 
 ## *Dataset* yang Digunakan
 Dataset yang digunakan berasal dari [Kaggle - Indonesia food delivery Gofood product list](https://www.kaggle.com/datasets/ariqsyahalam/indonesia-food-delivery-gofood-product-list).
 
 ## Deployment URL
-Aplikasi kami dapat diakses pada tautan http://joshua-montolalu-golekmakanrek.pbp.cs.ui.ac.id/.
+Aplikasi kami dapat diakses pada tautan *[TO DO]*
