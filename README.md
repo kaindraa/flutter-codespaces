@@ -48,22 +48,16 @@ Pengguna yang belum melakukan register dan login hanya dapat:
 - Melakukan pencarian dan filtering daftar makanan dan restoran.
 - Membuka fitur food preview dan restaurant preview.
 
-### 2. ⌨️🖱️ Admin
-Role admin memiliki akses untuk mengelola aplikasi.
-- Menghapus rating & ulasan makanan
-- Menghapus review makanan
-- Menambah restaurant
-- Menghapus restaurant
-- Menambah makanan
-- Menghapus makanan
-- Menghapus chat forum
-
 ## Alur Integrasi
-*[TO DO]*
+Alur integrasi aplikasi Flutter ke proyek web kami adalah sebagai berikut:
+1. Aplikasi Flutter akan menggunakan library `http` untuk melakukan *request* dan *response* HTTP kepada server Django, khususnya kepada endpoint yang mengembalikan data dalam bentuk JSON. 
+2. Aplikasi Flutter juga akan menggunakan library `pbp_django_auth` untuk memfasilitasi proses otentikasi (login, logout, register) dan menyimpan *session* lewat *cookie*.
+3. Untuk setiap model yang digunakan dalam aplikasi Django, akan dibuatkan model yang bersesuaian pada aplikasi Flutter untuk melakukan serialisasi dan deserialisasi data JSON ketika mengirim dan menerima data dari server Django.
+4. Untuk menerima request GET dan POST dari Flutter, akan dibuatkan endpoint (jika diperlukan) yang dapat mengolah request berisi JSON (POST) dari Flutter. Endpoint ini juga dapat mengembalikan response JSON (GET & POST) yang akan di-*parse* dan diolah oleh aplikasi Flutter.
 
 ## *Dataset* yang Digunakan
 Dataset yang digunakan berasal dari [Kaggle - Indonesia food delivery Gofood product list](https://www.kaggle.com/datasets/ariqsyahalam/indonesia-food-delivery-gofood-product-list).
 
 ## Berita Acara Kelompok F10
-Berita acara kelompok F10 dapat diaksis di [link berikut](https://docs.google.com/spreadsheets/d/1wk12z7HfZcbrUoaX8TTx7DbVCwNlyiNLAyX6wdyXSx8/edit?gid=0#gid=0)
+Berita acara kelompok F10 dapat diakses di [link berikut](https://docs.google.com/spreadsheets/d/1wk12z7HfZcbrUoaX8TTx7DbVCwNlyiNLAyX6wdyXSx8/edit?gid=0#gid=0)
 
