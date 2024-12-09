@@ -15,7 +15,7 @@ class MyHomePage extends StatelessWidget {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ForumPage()),
+              MaterialPageRoute(builder: (context) => ForumPage(posts: dummyPosts)),
             );
           },
           child: const Text("Buka Forum"),
