@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'forum.dart';
+import 'screens/forum/forum.dart';
 
 class MyHomePage extends StatelessWidget {
   MyHomePage({super.key});

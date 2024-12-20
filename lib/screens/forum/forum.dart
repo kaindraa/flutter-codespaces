@@ -1,148 +1,140 @@
+// lib/main.dart
+
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
+import 'package:golekmakanrek_mobile/models/food.dart';
+import 'package:golekmakanrek_mobile/models/restaurant.dart';
+import 'package:golekmakanrek_mobile/models/post.dart';
+import 'package:golekmakanrek_mobile/models/like.dart';
+import 'package:golekmakanrek_mobile/models/comment.dart';
+import 'package:golekmakanrek_mobile/models/report.dart';
 
 void main() {
+  
   runApp(MaterialApp(
     home: ForumPage(posts: dummyPosts),
   ));
 }
 
-// Define Models
-class Post {
-  final int id;
-  final String user;
-  final String text;
-  final String? image;
-  final int likeCount;
-  final int commentCount;
-  final int shareCount;
-  final int reportCount;
-  final DateTime createdAt;
-  final String? restaurant;
-  final List<Like> likes;
-  final List<Comment> comments;
-  final List<Report> reports;
-
-  Post({
-    required this.id,
-    required this.user,
-    required this.text,
-    this.image,
-    required this.likeCount,
-    required this.commentCount,
-    required this.shareCount,
-    required this.reportCount,
-    required this.createdAt,
-    this.restaurant,
-    required this.likes,
-    required this.comments,
-    required this.reports,
-  });
-}
-
-class Like {
-  final int id;
-  final int postId;
-  final int userId;
-  final DateTime createdAt;
-
-  Like({
-    required this.id,
-    required this.postId,
-    required this.userId,
-    required this.createdAt,
-  });
-}
-
-class Comment {
-  final int id;
-  final int postId;
-  final int userId;
-  final String text;
-  final DateTime createdAt;
-
-  Comment({
-    required this.id,
-    required this.postId,
-    required this.userId,
-    required this.text,
-    required this.createdAt,
-  });
-}
-
-class Report {
-  final int id;
-  final int postId;
-  final int reportedById;
-  final String reason;
-  final DateTime createdAt;
-
-  Report({
-    required this.id,
-    required this.postId,
-    required this.reportedById,
-    required this.reason,
-    required this.createdAt,
-  });
-}
-
+// ---------------------------
 // Dummy Data
+// ---------------------------
+
 final List<Post> dummyPosts = [
-  Post(
-    id: 1,
-    user: "pacil",
-    text: "Halo! Ini contoh post pertama.",
-    image: null,
-    likeCount: 5,
-    commentCount: 2,
-    shareCount: 0,
-    reportCount: 0,
-    createdAt: DateTime.now().subtract(const Duration(days: 1)),
-    restaurant: "Angkringan Abas Krian",
-    likes: [],
-    comments: [
-      Comment(
-        id: 1,
-        postId: 1,
-        userId: 2,
-        text: "Komentar pertama!",
-        createdAt: DateTime.now(),
-      ),
-      Comment(
-        id: 2,
-        postId: 1,
-        userId: 3,
-        text: "Komentar kedua!",
-        createdAt: DateTime.now(),
-      ),
-    ],
-    reports: [],
+    Post(
+    model: "forum.post",
+    pk: 1,
+    fields: PostFields(
+      user: 1,
+      text: "Halo! Ini contoh post pertama.",
+      image: "",
+      likeCount: 5,
+      commentCount: 2,
+      shareCount: 0,
+      reportCount: 0,
+      createdAt: DateTime(2024, 12, 19, 14, 30), // Custom date and time
+      restaurant: "Angkringan Abas Krian",
+    ),
   ),
   Post(
-    id: 2,
-    user: "admin",
-    text: "Ini adalah post kedua dari admin.",
-    image: "https://via.placeholder.com/150",
-    likeCount: 10,
-    commentCount: 3,
-    shareCount: 1,
-    reportCount: 0,
-    createdAt: DateTime.now().subtract(const Duration(days: 5)),
-    restaurant: null,
-    likes: [],
-    comments: [
-      Comment(
-        id: 3,
-        postId: 2,
-        userId: 4,
-        text: "Komentar dari admin!",
-        createdAt: DateTime.now(),
-      ),
-    ],
-    reports: [],
+    model: "forum.post",
+    pk: 2,
+    fields: PostFields(
+      user: 2,
+      text: "Ini adalah post kedua dari admin.",
+      image: "https://via.placeholder.com/150",
+      likeCount: 10,
+      commentCount: 3,
+      shareCount: 1,
+      reportCount: 0,
+      createdAt: DateTime(2024, 12, 18, 10, 0), // Custom date and time
+      restaurant: "",
+    ),
   ),
 ];
 
+final List<Comment> dummyComments = [
+  Comment(
+    model: "forum.comment",
+    pk: 1,
+    fields: CommentFields(
+      post: 1,
+      user: 2,
+      text: "Komentar pertama!",
+      createdAt: DateTime.now(),
+    ),
+  ),
+  Comment(
+    model: "forum.comment",
+    pk: 2,
+    fields: CommentFields(
+      post: 1,
+      user: 3,
+      text: "Komentar kedua!",
+      createdAt: DateTime.now(),
+    ),
+  ),
+  Comment(
+    model: "forum.comment",
+    pk: 3,
+    fields: CommentFields(
+      post: 2,
+      user: 4,
+      text: "Komentar dari admin!",
+      createdAt: DateTime.now(),
+    ),
+  ),
+  Comment(
+    model: "forum.comment",
+    pk: 4,
+    fields: CommentFields(
+      post: 2,
+      user: 5,
+      text: "Komentar tambahan!",
+      createdAt: DateTime.now(),
+    ),
+  ),
+];
+
+final List<Like> dummyLikes = [
+  Like(
+    model: "forum.like",
+    pk: 1,
+    fields: LikeFields(
+      post: 1,
+      user: 1,
+      createdAt: DateTime.now(),
+    ),
+  ),
+  Like(
+    model: "forum.like",
+    pk: 2,
+    fields: LikeFields(
+      post: 2,
+      user: 2,
+      createdAt: DateTime.now(),
+    ),
+  ),
+];
+
+final List<Report> dummyReports = [
+  Report(
+    model: "forum.report",
+    pk: 1,
+    fields: ReportFields(
+      post: 2,
+      reportedBy: 3,
+      reason: "Spam atau Iklan",
+      createdAt: DateTime.now(),
+    ),
+  ),
+];
+
+// ---------------------------
 // ForumPage Widget
+// ---------------------------
+
 class ForumPage extends StatelessWidget {
   final List<Post> posts;
 
@@ -150,6 +142,29 @@ class ForumPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Associate comments, likes, and reports with posts
+    List<Post> enrichedPosts = posts.map((post) {
+      List<Comment> postComments = dummyComments.where((c) => c.fields.post == post.pk).toList();
+      List<Like> postLikes = dummyLikes.where((l) => l.fields.post == post.pk).toList();
+      List<Report> postReports = dummyReports.where((r) => r.fields.post == post.pk).toList();
+      
+      return Post(
+        model: post.model,
+        pk: post.pk,
+        fields: PostFields(
+          user: post.fields.user,
+          text: post.fields.text,
+          image: post.fields.image,
+          likeCount: post.fields.likeCount,
+          commentCount: post.fields.commentCount,
+          shareCount: post.fields.shareCount,
+          reportCount: post.fields.reportCount,
+          createdAt: post.fields.createdAt,
+          restaurant: post.fields.restaurant,
+        ),
+      );
+    }).toList();
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.orange,
@@ -160,19 +175,25 @@ class ForumPage extends StatelessWidget {
         itemCount: posts.length,
         itemBuilder: (context, index) {
           final post = posts[index];
-          return PostCard(post: post);
+          // Associate comments with the post
+          final comments = dummyComments.where((c) => c.fields.post == post.pk).toList();
+          return PostCard(post: post, comments: comments);
         },
       ),
     );
   }
 }
 
+// ---------------------------
 // PostCard Widget
+// ---------------------------
+
 class PostCard extends StatefulWidget {
   final Post post;
+  final List<Comment> comments;
 
-  const PostCard({super.key, required this.post});
-
+  const PostCard({super.key, required this.post, required this.comments});
+  
   @override
   State<PostCard> createState() => _PostCardState();
 }
@@ -185,12 +206,17 @@ class _PostCardState extends State<PostCard> {
   @override
   void initState() {
     super.initState();
-    likeCount = widget.post.likeCount;
+    likeCount = widget.post.fields.likeCount;
   }
 
   @override
   Widget build(BuildContext context) {
     final post = widget.post;
+    // ignore: avoid_print
+    print("Post user: ${post.fields.user}");
+    print("Post text: ${post.fields.text}");
+    print("Post image: ${post.fields.image}");
+    print("Post restaurant: ${post.fields.restaurant}");
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -208,23 +234,23 @@ class _PostCardState extends State<PostCard> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  post.user,
+                  "User ID: ${post.fields.user}",
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
                 ),
                 Text(
-                  _formatDate(post.createdAt),
+                  _formatDate(post.fields.createdAt),
                   style: const TextStyle(color: Colors.grey, fontSize: 12),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             // Restaurant Name
-            if (post.restaurant != null)
+            if (post.fields.restaurant != null && post.fields.restaurant!.isNotEmpty)
               Text(
-                "Restoran: ${post.restaurant}",
+                "Restoran: ${post.fields.restaurant}",
                 style: const TextStyle(
                   fontStyle: FontStyle.italic,
                   color: Colors.orange,
@@ -234,16 +260,16 @@ class _PostCardState extends State<PostCard> {
             const SizedBox(height: 8),
             // Post Content
             Text(
-              post.text,
+              post.fields.text,
               style: const TextStyle(
                 fontSize: 14,
                 color: Colors.black87,
               ),
             ),
-            if (post.image != null)
+            if (post.fields.image != null && post.fields.image!.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Image.network(post.image!),
+                child: Image.network(post.fields.image!),
               ),
             const SizedBox(height: 16),
             // Action Buttons
@@ -277,7 +303,7 @@ class _PostCardState extends State<PostCard> {
                       },
                       icon: const Icon(Icons.comment_outlined),
                     ),
-                    Text('${post.commentCount}'),
+                    Text('${post.fields.commentCount}'),
                   ],
                 ),
                 IconButton(
@@ -301,7 +327,7 @@ class _PostCardState extends State<PostCard> {
             // Comments Section
             if (showComments)
               Column(
-                children: post.comments.map((comment) => _buildComment(comment)).toList(),
+                children: widget.post.fields.comments.map((comment) => _buildComment(comment)).toList(),
               ),
           ],
         ),
@@ -331,7 +357,7 @@ class _PostCardState extends State<PostCard> {
                 color: Colors.grey.shade200,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Text(comment.text),
+              child: Text(comment.fields.text),
             ),
           ),
         ],

@@ -11,7 +11,7 @@ String commentToJson(List<Comment> data) => json.encode(List<dynamic>.from(data.
 class Comment {
     String model;
     int pk;
-    Fields fields;
+    CommentFields fields;
 
     Comment({
         required this.model,
@@ -22,7 +22,7 @@ class Comment {
     factory Comment.fromJson(Map<String, dynamic> json) => Comment(
         model: json["model"],
         pk: json["pk"],
-        fields: Fields.fromJson(json["fields"]),
+        fields: CommentFields.fromJson(json["fields"]),
     );
 
     Map<String, dynamic> toJson() => {
@@ -32,20 +32,20 @@ class Comment {
     };
 }
 
-class Fields {
+class CommentFields {
     int post;
     int user;
     String text;
     DateTime createdAt;
 
-    Fields({
+    CommentFields({
         required this.post,
         required this.user,
         required this.text,
         required this.createdAt,
     });
 
-    factory Fields.fromJson(Map<String, dynamic> json) => Fields(
+    factory CommentFields.fromJson(Map<String, dynamic> json) => CommentFields(
         post: json["post"],
         user: json["user"],
         text: json["text"],

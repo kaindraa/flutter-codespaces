@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:golekmakanrek_mobile/models/comment.dart';
+
 List<Post> postFromJson(String str) => List<Post>.from(json.decode(str).map((x) => Post.fromJson(x)));
 
 String postToJson(List<Post> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
@@ -11,7 +13,7 @@ String postToJson(List<Post> data) => json.encode(List<dynamic>.from(data.map((x
 class Post {
     String model;
     int pk;
-    Fields fields;
+    PostFields fields;
 
     Post({
         required this.model,
@@ -22,7 +24,7 @@ class Post {
     factory Post.fromJson(Map<String, dynamic> json) => Post(
         model: json["model"],
         pk: json["pk"],
-        fields: Fields.fromJson(json["fields"]),
+        fields: PostFields.fromJson(json["fields"]),
     );
 
     Map<String, dynamic> toJson() => {
@@ -30,20 +32,22 @@ class Post {
         "pk": pk,
         "fields": fields.toJson(),
     };
+
+  copyWith({required fields}) {}
 }
 
-class Fields {
+class PostFields {
     int user;
     String text;
-    String image;
+    String? image;
     int likeCount;
     int commentCount;
     int shareCount;
     int reportCount;
     DateTime createdAt;
-    String restaurant;
+    String? restaurant;
 
-    Fields({
+    PostFields({
         required this.user,
         required this.text,
         required this.image,
@@ -55,7 +59,7 @@ class Fields {
         required this.restaurant,
     });
 
-    factory Fields.fromJson(Map<String, dynamic> json) => Fields(
+    factory PostFields.fromJson(Map<String, dynamic> json) => PostFields(
         user: json["user"],
         text: json["text"],
         image: json["image"],
@@ -66,6 +70,8 @@ class Fields {
         createdAt: DateTime.parse(json["created_at"]),
         restaurant: json["restaurant"],
     );
+
+  get comments => null;
 
     Map<String, dynamic> toJson() => {
         "user": user,
@@ -78,4 +84,6 @@ class Fields {
         "created_at": createdAt.toIso8601String(),
         "restaurant": restaurant,
     };
+
+  copyWith({required List<Comment> comments}) {}
 }

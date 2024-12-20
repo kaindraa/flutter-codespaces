@@ -11,7 +11,7 @@ String reportToJson(List<Report> data) => json.encode(List<dynamic>.from(data.ma
 class Report {
     String model;
     int pk;
-    Fields fields;
+    ReportFields fields;
 
     Report({
         required this.model,
@@ -22,7 +22,7 @@ class Report {
     factory Report.fromJson(Map<String, dynamic> json) => Report(
         model: json["model"],
         pk: json["pk"],
-        fields: Fields.fromJson(json["fields"]),
+        fields: ReportFields.fromJson(json["fields"]),
     );
 
     Map<String, dynamic> toJson() => {
@@ -32,20 +32,20 @@ class Report {
     };
 }
 
-class Fields {
+class ReportFields {
     int post;
     int reportedBy;
     String reason;
     DateTime createdAt;
 
-    Fields({
+    ReportFields({
         required this.post,
         required this.reportedBy,
         required this.reason,
         required this.createdAt,
     });
 
-    factory Fields.fromJson(Map<String, dynamic> json) => Fields(
+    factory ReportFields.fromJson(Map<String, dynamic> json) => ReportFields(
         post: json["post"],
         reportedBy: json["reported_by"],
         reason: json["reason"],

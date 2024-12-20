@@ -11,7 +11,7 @@ String likeToJson(List<Like> data) => json.encode(List<dynamic>.from(data.map((x
 class Like {
     String model;
     int pk;
-    Fields fields;
+    LikeFields fields;
 
     Like({
         required this.model,
@@ -22,7 +22,7 @@ class Like {
     factory Like.fromJson(Map<String, dynamic> json) => Like(
         model: json["model"],
         pk: json["pk"],
-        fields: Fields.fromJson(json["fields"]),
+        fields: LikeFields.fromJson(json["fields"]),
     );
 
     Map<String, dynamic> toJson() => {
@@ -32,18 +32,18 @@ class Like {
     };
 }
 
-class Fields {
+class LikeFields {
     int post;
     int user;
     DateTime createdAt;
 
-    Fields({
+    LikeFields({
         required this.post,
         required this.user,
         required this.createdAt,
     });
 
-    factory Fields.fromJson(Map<String, dynamic> json) => Fields(
+    factory LikeFields.fromJson(Map<String, dynamic> json) => LikeFields(
         post: json["post"],
         user: json["user"],
         createdAt: DateTime.parse(json["created_at"]),
