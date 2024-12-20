@@ -1,86 +1,63 @@
-# Flutter on Codespaces
+<!-- Kalau ada yang mau ditambah/diedit boleh yaa, misal mau tambah emoji, bikin bagus tampilannya, dll. -->
+# 🍲 GolekMakanRek-Mobile!  🍜
+**GolekMakanRek!** adalah aplikasi untuk Anda para penduduk dan juga turis di Surabaya untuk memilih kuliner sesuai selera.
 
-This is a template repository for developing with [Flutter](https://flutter.dev/) on the web on [GitHub Codespaces](https://github.com/features/codespaces).
+## 📜 Back Story
+Surabaya, sebagai salah satu kota besar di Indonesia, memiliki kekayaan kuliner yang sangat beragam, mulai dari jajanan kaki lima hingga restoran mewah. Namun, dengan begitu banyak pilihan, baik penduduk lokal maupun wisatawan sering kali kebingungan menentukan tempat makan yang sesuai dengan selera dan kebutuhan mereka. Dari sinilah ide GolekMakanRek! muncul—sebuah platform yang dirancang untuk membantu masyarakat Surabaya dan para wisatawan menjelajahi serta menemukan kuliner terbaik di kota ini dengan mudah. GolekMakanRek! bertujuan menjadi solusi bagi setiap orang yang ingin menikmati hidangan lezat, tanpa harus repot memilih di tengah keramaian kota.
 
-Flutter is a cross-platform UI framework by Google for building apps. Codespaces is a cloud-based development environment that lets you run a full-featured IDE in the cloud. This template repository lets you get started with Flutter on Codespaces in just a few clicks.
+## 👥 Anggota Kelompok
+| Nama | NPM | Akun GitHub | 
+| -- | -- | -- |
+| Nisrina Annaisha Sarnadi | 2306275960 | [aisss](https://github.com/nsrnannaisha) |
+| Kaindra Rizq Sachio | 2306274964 | [kaindraa](https://github.com/kaindraa) |
+| Muhammad Afwan Hafizh | 2306208855 | [mir4na](https://github.com/mir4na) |
+| Joshua Montolalu | 2306275746 | [HamletJr](https://github.com/HamletJr) |
+| Ignasius Bramantya Widiprasetya | 2306245604 | [BramantyaWidiprasetya ](https://github.com/BramantyaWidiprasetya) |
+| Muhammad Falah Marzuq | 2306202315 | [falahMarzuq](https://github.com/falahMarzuq)
 
-**Table of Contents**
-- [Important things to note](#important-things-to-note)
-- [Setup](#setup)
-  - [Getting started](#getting-started)
-  - [Using a sample](#using-a-sample)
-- [Development Environment](#development-environment)
-  - [Developing in the browser](#developing-in-the-browser)
-  - [Developing in the desktop app](#developing-in-the-desktop-app)
-- [Flutter Development](#flutter-development)
-  - [Developing for mobile](#developing-for-mobile)
-- [Codespaces Usage](#codespaces-usage)
-  - [Managing your codespace](#managing-your-codespace)
+## 🗒️ Deskripsi Aplikasi
+**GolekMakanRek!** adalah sebuah aplikasi yang memberikan kemudahan bagi penduduk lokal maupun wisatawan untuk menjelajahi berbagai pilihan kuliner di Surabaya. Dengan desain yang sederhana tetapi intuitif, platform ini memungkinkan pengguna mencari restoran dan makanan sesuai selera mereka. Melalui fitur pencarian yang dapat difilter berdasarkan jenis makanan, lokasi, atau popularitas, pengguna dapat menemukan rekomendasi kuliner mulai dari makanan kaki lima hingga restoran berbintang dengan cepat dan mudah.
 
-This repository is generated from the [dilanx/flutter-codespaces](https://github.com/dilanx/flutter-codespaces) repository.
+Selain melihat deskripsi restoran dan menu yang tersedia, pengguna juga dapat membaca ulasan dan melihat rating dari pengguna lain. Fitur ini sangat berguna untuk membantu dalam memilih tempat makan terbaik berdasarkan pengalaman orang lain. Uniknya, pengguna juga dapat berkontribusi dengan memberikan rating dan ulasan sendiri setelah mencicipi makanan dari restoran yang mereka kunjungi. Rating ini kemudian akan terakumulasi, memberikan gambaran yang lebih akurat tentang kualitas makanan dan layanan di setiap restoran yang terdaftar di GolekMakanRek!.
 
-## Important things to note
+Pengalaman pengguna semakin dipersonalisasi dengan adanya fitur wishlist, yang artinya pengguna dapat menyimpan daftar makanan yang ingin dicoba di kemudian hari. Ini membuat GolekMakanRek! tidak hanya sekadar direktori makanan, tetapi juga tempat bagi komunitas kuliner untuk berbagi pengalaman, memberi rekomendasi, dan membantu orang lain menemukan tempat makan terbaik di Surabaya.
+## 📔 Daftar Modul
+Berikut adalah daftar modul yang akan di-implementasikan:
+ 
+| Modul | Pengembang | Penjelasan |
+| -- | -- | -- |
+| **Autentikasi & Admin** | All | **Autentikasi:** Berperan mengatur Registrasi dan Login akun pengguna dan admin. <br> **Admin:** Berperan dalam mengelola konten aplikasi. Admin memiliki hak untuk menambahkan, menghapus, dan mengubah data restoran atau makanan. Selain itu, Admin juga dapat mengawasi dan memoderasi ulasan pengguna. |
+| **User Dashboard** | Bram | Berisikan informasi pengguna seperti nama, umur, nomor handphone, dan alamat. Pengguna juga dapat mengedit informasi pribadinya. |
+| **Homepage: Search, Filter, Like** | Joshua | Pada homepage, pengguna dapat melihat dan mencari dari data-data yang tersedia pada aplikasi. Pengguna dapat memilih untuk mencari dari daftar restoran ataupun daftar makanan. Selain itu, pengguna dapat melakukan reaction yaitu menyukai makanan yang ditampilkan pada Homepage. Nantinya, angka dari *like* tersebut akan dijumlahkan dari semua user yang menyukai makanan tersebut. |
+| **Restaurant Preview & Follow** | Ais | Fitur ini menampilkan restoran-restoran beserta deskripsinya. Ditampilkan pula daftar menu yang tersedia. Pengguna dapat memberikan rating yang hasilnya akan terakumulasi sebagai rating restoran dan melakukan _follow-unfollow_ restoran. |
+| **Food Preview** | Hafizh | Pada fitur Food Preview, pengguna dapat memberikan ulasan dan rating mengenai produk makanan yang ada pada setiap restoran. Setiap ulasan yang diberikan akan ditampikan ketika pengguna melakukan klik pada button terkait “ulasan produk”. Selain itu, terdapat penghitungan rating yang memungkinkan hasil rata-rata dari setiap rating yang diberikan pengguna akan ditampilkan pada masing-masing produk makanan. |
+| **Wishlist** | Falah | Pengguna dapat menambahkan suatu makanan ke dalam daftar berupa wishlist. Daftar ini berisikan makanan-makanan yang diinginkan pengguna. Pengguna dapat melihat daftar tersebut dan mengedit daftarnya seperti menambahkan makanan lainnya dan juga menghapus suatu makanan dari wishlist. |
+| **Forum Kuliner** | Kaindra | Antar para pengguna dapat melakukan komunikasi dalam bentuk forum yang dibuat. Sebagai contoh, Pengguna A membuka topik pembicaraan di forum. Nantinya, Pengguna B atau Pengguna lainnya dapat ikut mengikuti forum tersebut dengan melakukan reply. |
 
-Codespaces is not completely free. Free users have 120 core-hours per month and Pro users have 180 core-hours per month. The default codespace runs on a 2-core machine, so that's 60 hours (or 90 hours) of free usage per month before getting charged. Make sure to stop your codespace when you're not using it (it automatically stops after 30 minutes of inactivity by default). See more pricing details [here](https://docs.github.com/en/billing/managing-billing-for-github-codespaces/about-billing-for-github-codespaces), and manage your active codespaces [here](https://github.com/codespaces).
+## 🤺 *Role*/Peran Pengguna
+### 1. 👨🏻‍💻 Pengguna
+#### a. 🔐 Pengguna (terautentikasi)
+Pengguna yang sudah melakukan register dan login dapat:
+- Melakukan pencarian dan filtering daftar makanan dan restoran.
+- Membuka fitur food preview dan restaurant preview.
+- Membuka dan mengubah informasi pengguna pada user dashboard.
+- Membuka dan menambahkan wishlist pribadi pengguna.
+#### b. 🔒 Pengguna (belum terautentikasi)
+Pengguna yang belum melakukan register dan login hanya dapat:
+- Membuka homepage.
+- Melakukan pencarian dan filtering daftar makanan dan restoran.
+- Membuka fitur food preview dan restaurant preview.
 
-## Setup
+## Alur Integrasi
+Alur integrasi aplikasi Flutter ke proyek web kami adalah sebagai berikut:
+1. Aplikasi Flutter akan menggunakan library `http` untuk melakukan *request* dan *response* HTTP kepada server Django, khususnya kepada endpoint yang mengembalikan data dalam bentuk JSON. 
+2. Aplikasi Flutter juga akan menggunakan library `pbp_django_auth` untuk memfasilitasi proses otentikasi (login, logout, register) dan menyimpan *session* lewat *cookie*.
+3. Untuk setiap model yang digunakan dalam aplikasi Django, akan dibuatkan model yang bersesuaian pada aplikasi Flutter untuk melakukan serialisasi dan deserialisasi data JSON ketika mengirim dan menerima data dari server Django.
+4. Untuk menerima request GET dan POST dari Flutter, akan dibuatkan endpoint (jika diperlukan) yang dapat mengolah request berisi JSON (POST) dari Flutter. Endpoint ini juga dapat mengembalikan response JSON (GET & POST) yang akan di-*parse* dan diolah oleh aplikasi Flutter.
 
-### Getting started
+## *Dataset* yang Digunakan
+Dataset yang digunakan berasal dari [Kaggle - Indonesia food delivery Gofood product list](https://www.kaggle.com/datasets/ariqsyahalam/indonesia-food-delivery-gofood-product-list).
 
-1. Press "Use this template" towards the top right of this repository and create a new repository from this template.
+## Berita Acara Kelompok F10
+Berita acara kelompok F10 dapat diakses di [link berikut](https://docs.google.com/spreadsheets/d/1wk12z7HfZcbrUoaX8TTx7DbVCwNlyiNLAyX6wdyXSx8/edit?gid=0#gid=0)
 
-    > There's also an option to open this repository in Codespaces and publish it to GitHub later from there, but I recommend creating your own repository first.
-
-2. In your new repository, press "Code", select "Codespaces", then press "Create codespace on main". A container with everything you need to get started will be created automatically, then you'll be taken to your new codespace (VS Code in your browser). If you'd prefer to work on your codespace using the VS Code desktop app instead of the browser app, you can follow these instructions.
-
-3. Press the "Extensions" icon in the left sidebar. You'll see that the Flutter and Dart extensions are already being installed. The environment won't work properly until the installation is complete, so wait for it to finish.
-
-4. In your integrated terminal (the TERMINAL tab), run `flutter pub get` to install the missing Flutter dependencies.
-
-5. In the ports view (the PORTS tab), port 3000 should be listed there already. Right click on it, and, under "Port Visibility", select "Public". This is important so the app can access services on your client from other server ports without getting blocked due to CORS.
-
-6. Run `./run.sh` in the terminal to start the app. A notification will appear saying that an app opened on port 3000. You can press "Open in Browser" to open it, but it won't load until the terminal shows that it's ready. You can refresh once the app is loaded (as indicated by a prompt to press "R" to reload).
-
-    > You can find the link to access the app in your browser at any time by going to the ports view, right clicking on port 3000, and pressing "Open in Browser".
-
-7. That's it! Make changes in `lib/main.dart`, press "R" in the terminal, then refresh the page to see your changes appear quickly.
-
-### Using a sample
-
-There are a collection of sample Flutter apps you can use. They're stored in the `samples` directory. If you want to use one of them, find the folder of the sample you want to use, then move the contents of the folder into the root of your repository. At minimum, this should overwrite `pubspec.yaml` and `lib`.
-
-## Development Environment
-
-### Developing in the browser
-
-The browser-based VS Code is the default editor for Codespaces, and has most of the features you'd need. Opening your codespace from [github.com/codespaces](https://github.com/codespaces) will automatically open the browser-based editor.
-
-### Developing in the desktop app
-
-If you'd prefer to use the desktop app version of VS Code, you can follow these instructions:
-
-1. Download the [VS Code desktop app](https://code.visualstudio.com/). You probably already have it if you chose to follow these instructions.
-
-2. Install the [GitHub Codespaces extension](https://marketplace.visualstudio.com/items?itemName=GitHub.codespaces).
-
-3. Open the command pallette from the View menu (or cmd+shift+P / ctrl+shift+P) and run "Codespaces: Connect to Codespace...".
-
-    > Alternatively, click the button in the very bottom left of VS Code (it says "Open a Remote Window" if you hover over it) and press "Connect to Codespace...".
-
-4. Log in if necessary, then select your codespace from the list.
-
-## Flutter Development
-
-### Developing for mobile
-
-Running Flutter in Codespaces makes it a bit difficult to run the app in a mobile simulator. However, developing for the web is basically the same as developing for mobile. I'd recommend opening your browser's developer tools and selecting a mobile device to emulate.
-
-If you're using Chrome or another Chromium-based browser, you can open DevTools like [this](https://developer.chrome.com/docs/devtools/open/) and emulate a device like [this](https://developer.chrome.com/docs/devtools/device-mode/). It'll be pretty similar for other browsers like Safari and Firefox.
-
-## Codespaces Usage
-
-### Managing your codespace
-
-When you're not using your codespace, deactivate it by going to [Codespaces](https://github.com/codespaces), pressing the 3 dots on the right side of the codespace, and pressing "Stop codespace". You can also deactivate it within the codespace by pressing "Codespaces" at the bottom left of VS Code and selecting "Stop Current Codespace".
-
-Edited files in your workspace are not deleted when stopping the codespace and the container won't need to be rebuilt when you start it again. Provided that you're under the storage limit (15 GB for Free users and 20 GB for Pro), you won't be charged if your codespace is offline. I recommend committing your repository changes on your codespace often to avoid losing work if you were to delete your codespace.
