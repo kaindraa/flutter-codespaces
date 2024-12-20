@@ -327,7 +327,7 @@ class _PostCardState extends State<PostCard> {
             // Comments Section
             if (showComments)
               Column(
-                children: widget.post.fields.comments.map((comment) => _buildComment(comment)).toList(),
+                children: widget.comments.map((comment) => _buildComment(comment)).toList(),
               ),
           ],
         ),
