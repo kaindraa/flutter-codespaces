@@ -9,178 +9,197 @@ import 'package:golekmakanrek_mobile/models/post.dart';
 import 'package:golekmakanrek_mobile/models/like.dart';
 import 'package:golekmakanrek_mobile/models/comment.dart';
 import 'package:golekmakanrek_mobile/models/report.dart';
+import 'package:golekmakanrek_mobile/screens/forum/dummy_data.dart';
+import 'package:golekmakanrek_mobile/screens/forum/post_form.dart'; // Import dummy data
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:golekmakanrek_mobile/screens/forum/post_form.dart';
 
 void main() {
   
   runApp(MaterialApp(
-    home: ForumPage(posts: dummyPosts),
+    home: ForumPage(),
   ));
 }
 
 // ---------------------------
 // Dummy Data
-// ---------------------------
 
-final List<Post> dummyPosts = [
-    Post(
-    model: "forum.post",
-    pk: 1,
-    fields: PostFields(
-      user: 1,
-      text: "Halo! Ini contoh post pertama.",
-      image: "",
-      likeCount: 5,
-      commentCount: 2,
-      shareCount: 0,
-      reportCount: 0,
-      createdAt: DateTime(2024, 12, 19, 14, 30), // Custom date and time
-      restaurant: "Angkringan Abas Krian",
-    ),
-  ),
-  Post(
-    model: "forum.post",
-    pk: 2,
-    fields: PostFields(
-      user: 2,
-      text: "Ini adalah post kedua dari admin.",
-      image: "https://via.placeholder.com/150",
-      likeCount: 10,
-      commentCount: 3,
-      shareCount: 1,
-      reportCount: 0,
-      createdAt: DateTime(2024, 12, 18, 10, 0), // Custom date and time
-      restaurant: "",
-    ),
-  ),
-];
 
-final List<Comment> dummyComments = [
-  Comment(
-    model: "forum.comment",
-    pk: 1,
-    fields: CommentFields(
-      post: 1,
-      user: 2,
-      text: "Komentar pertama!",
-      createdAt: DateTime.now(),
-    ),
-  ),
-  Comment(
-    model: "forum.comment",
-    pk: 2,
-    fields: CommentFields(
-      post: 1,
-      user: 3,
-      text: "Komentar kedua!",
-      createdAt: DateTime.now(),
-    ),
-  ),
-  Comment(
-    model: "forum.comment",
-    pk: 3,
-    fields: CommentFields(
-      post: 2,
-      user: 4,
-      text: "Komentar dari admin!",
-      createdAt: DateTime.now(),
-    ),
-  ),
-  Comment(
-    model: "forum.comment",
-    pk: 4,
-    fields: CommentFields(
-      post: 2,
-      user: 5,
-      text: "Komentar tambahan!",
-      createdAt: DateTime.now(),
-    ),
-  ),
-];
-
-final List<Like> dummyLikes = [
-  Like(
-    model: "forum.like",
-    pk: 1,
-    fields: LikeFields(
-      post: 1,
-      user: 1,
-      createdAt: DateTime.now(),
-    ),
-  ),
-  Like(
-    model: "forum.like",
-    pk: 2,
-    fields: LikeFields(
-      post: 2,
-      user: 2,
-      createdAt: DateTime.now(),
-    ),
-  ),
-];
-
-final List<Report> dummyReports = [
-  Report(
-    model: "forum.report",
-    pk: 1,
-    fields: ReportFields(
-      post: 2,
-      reportedBy: 3,
-      reason: "Spam atau Iklan",
-      createdAt: DateTime.now(),
-    ),
-  ),
-];
 
 // ---------------------------
 // ForumPage Widget
 // ---------------------------
 
-class ForumPage extends StatelessWidget {
-  final List<Post> posts;
+class ForumPage extends StatefulWidget {
+  const ForumPage({super.key});
 
-  const ForumPage({super.key, required this.posts});
+  @override
+  State<ForumPage> createState() => _ForumPageState();
+}
+
+class _ForumPageState extends State<ForumPage> {
+  List<Post> _posts = [];
+  bool _isLoading = true;
+  String _errorMessage = '';
+  Map<int, List<Comment>> postComments = {};
+
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final request = context.read<CookieRequest>(); // Access the CookieRequest
+      fetchPosts(request);
+    });
+  }
+
+  // Fungsi untuk mengambil data post dari server Django
+Future<void> fetchPosts(CookieRequest request) async {
+  try {
+    // Fetch posts
+    final postResponse = await request.get(
+      'https://ideal-eureka-r4gxwv6xrv5gh5565-8000.app.github.dev/forum/post_json/',
+    );
+
+    // Fetch comments
+    final commentResponse = await request.get(
+      'https://ideal-eureka-r4gxwv6xrv5gh5565-8000.app.github.dev/forum/comment_json/',
+    );
+
+    // Fetch restaurant data
+    final restaurantResponse = await request.get(
+      'https://ideal-eureka-r4gxwv6xrv5gh5565-8000.app.github.dev/main/restaurant_json/',
+    );
+
+    // Decode responses
+    List<dynamic> postData = postResponse;
+    List<dynamic> commentData = commentResponse;
+    List<dynamic> restaurantData = restaurantResponse;
+
+    // Create comments map
+    Map<int, List<Comment>> commentsMap = {};
+    for (var item in commentData) {
+      Comment comment = Comment.fromJson(item);
+
+      if (comment.fields.post != null) {
+        commentsMap.putIfAbsent(comment.fields.post!, () => []).add(comment);
+      }
+    }
+
+    // Create restaurant map
+    Map<String, String> restaurantMap = {};
+    for (var item in restaurantData) {
+      restaurantMap[item['pk']] = item['fields']['nama'];
+    }
+
+    // Convert posts to Post objects and replace restaurant UUID with name
+    List<Post> fetchedPosts = postData.map((item) {
+      Post post = Post.fromJson(item);
+
+      // Replace restaurant UUID with its name if available
+      if (post.fields.restaurant != null &&
+          restaurantMap.containsKey(post.fields.restaurant)) {
+        post.fields.restaurant = restaurantMap[post.fields.restaurant];
+      } else {
+        post.fields.restaurant = "Unknown Restaurant";
+      }
+
+      return post;
+    }).toList();
+
+    setState(() {
+      _posts = fetchedPosts;
+      postComments = commentsMap;
+      _isLoading = false;
+    });
+  } catch (e) {
+    setState(() {
+      _errorMessage = 'Terjadi kesalahan: $e';
+      _isLoading = false;
+    });
+  }
+}
+  // Fungsi untuk merefresh daftar post
+  Future<void> _refreshPosts() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+    final request = context.read<CookieRequest>(); // Retrieve CookieRequest again
+
+    await fetchPosts(request);
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Associate comments, likes, and reports with posts
-    List<Post> enrichedPosts = posts.map((post) {
-      List<Comment> postComments = dummyComments.where((c) => c.fields.post == post.pk).toList();
-      List<Like> postLikes = dummyLikes.where((l) => l.fields.post == post.pk).toList();
-      List<Report> postReports = dummyReports.where((r) => r.fields.post == post.pk).toList();
-      
-      return Post(
-        model: post.model,
-        pk: post.pk,
-        fields: PostFields(
-          user: post.fields.user,
-          text: post.fields.text,
-          image: post.fields.image,
-          likeCount: post.fields.likeCount,
-          commentCount: post.fields.commentCount,
-          shareCount: post.fields.shareCount,
-          reportCount: post.fields.reportCount,
-          createdAt: post.fields.createdAt,
-          restaurant: post.fields.restaurant,
-        ),
-      );
-    }).toList();
-
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.orange,
         title: const Text("Jelajahi Makanan di Surabaya!"),
+        backgroundColor: Colors.orange,
         centerTitle: true,
       ),
-      body: ListView.builder(
-        itemCount: posts.length,
-        itemBuilder: (context, index) {
-          final post = posts[index];
-          // Associate comments with the post
-          final comments = dummyComments.where((c) => c.fields.post == post.pk).toList();
-          return PostCard(post: post, comments: comments);
-        },
-      ),
-    );
+    body: _isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : _errorMessage.isNotEmpty
+            ? Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Terjadi Kesalahan:",
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: SelectableText(
+                          _errorMessage,
+                          style: const TextStyle(fontSize: 14, color: Colors.red),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => _refreshPosts(),
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                      child: const Text("Coba Lagi"),
+                    ),
+                  ],
+                ),
+              )
+            : RefreshIndicator(
+                onRefresh: _refreshPosts,
+                child: ListView.builder(
+                itemCount: _posts.length,
+                itemBuilder: (context, index) {
+                  final post = _posts[index];
+                  // Retrieve comments for the current post from postComments
+                  final comments = postComments[post.pk] ?? [];
+                  return PostCard(post: post, comments: comments);
+                },
+              ),
+            ),
+            floatingActionButton: FloatingActionButton(
+      backgroundColor: Colors.orange,
+      onPressed: () async {
+        // Navigate to CreatePostPage
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const CreatePostPage()),
+        );
+
+        // Refresh posts after returning
+        _refreshPosts();
+      },
+      child: const Icon(Icons.add),
+    ),
+  );
+  
+
   }
 }
 
@@ -290,7 +309,7 @@ class _PostCardState extends State<PostCard> {
                         color: isLiked ? Colors.blue : Colors.grey,
                       ),
                     ),
-                    Text('$likeCount'),
+                    // Text('$likeCount'),
                   ],
                 ),
                 Row(
@@ -303,7 +322,7 @@ class _PostCardState extends State<PostCard> {
                       },
                       icon: const Icon(Icons.comment_outlined),
                     ),
-                    Text('${post.fields.commentCount}'),
+                    // Text('${post.fields.commentCount}'),
                   ],
                 ),
                 IconButton(

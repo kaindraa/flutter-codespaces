@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/forum/forum.dart';
+import 'package:golekmakanrek_mobile/screens/forum/dummy_data.dart'; // Import dummy data
 
 class MyHomePage extends StatelessWidget {
   MyHomePage({super.key});
@@ -15,7 +16,7 @@ class MyHomePage extends StatelessWidget {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => ForumPage(posts: dummyPosts)),
+              MaterialPageRoute(builder: (context) => ForumPage()),
             );
           },
           child: const Text("Buka Forum"),
