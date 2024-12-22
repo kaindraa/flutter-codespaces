@@ -5,9 +5,29 @@ import 'package:golekmakanrek_mobile/screens/forum/post_form.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+// Function to fetch the current username
+Future<String> fetchUsername(CookieRequest request) async {
+  try {
+    // Fetch username from the API
+    final response = await request.get(
+      'https://ideal-eureka-r4gxwv6xrv5gh5565-8000.app.github.dev/auth/get_username/',
+    );
+
+    // Extract and return the username
+    if (response['username'] != null) {
+      return response['username'];
+    } else {
+      throw Exception("Invalid response: No username found");
+    }
+  } catch (e) {
+    throw Exception("Failed to fetch username: $e");
+  }
+}
 
 class ForumPage extends StatefulWidget {
-  const ForumPage({Key? key}) : super(key: key);
+  const ForumPage({super.key});
 
   @override
   State<ForumPage> createState() => _ForumPageState();
@@ -22,59 +42,70 @@ class _ForumPageState extends State<ForumPage> {
   String _errorMessage = '';
   bool _isFetching = false;
 
-  // For debugging raw JSON response
-  String _rawPostResponse = '';
-
-  // Example: Hardcode the current user ID if you’re not yet retrieving from the login:
-  int currentUserId = 1; // Replace with your actual user ID after login
+  // To store the username
+  String currentUsername = '';
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final request = context.read<CookieRequest>();
-      fetchData(request);
+      initializePage(request); // Fetch username and data
     });
   }
 
   // --------------------------------------------------------
-  // FETCH DATA (USERS, POSTS, COMMENTS, RESTAURANTS)
+  // INITIALIZE PAGE (FETCH USERNAME AND DATA)
+  // --------------------------------------------------------
+  Future<void> initializePage(CookieRequest request) async {
+    try {
+      setState(() => _isLoading = true);
+
+      // Fetch the current username
+      currentUsername = await fetchUsername(request);
+
+      // Fetch other data
+      await fetchData(request);
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error initializing page: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
+  // --------------------------------------------------------
+  // FETCH DATA (POSTS, COMMENTS, USERS, RESTAURANTS)
   // --------------------------------------------------------
   Future<void> fetchData(CookieRequest request) async {
     if (_isFetching) return;
     _isFetching = true;
     try {
-      // 1. Fetch posts (which now include likeCount and isLiked from Django)
+      // Fetch posts
       final postResponse = await request.get(
         'https://ideal-eureka-r4gxwv6xrv5gh5565-8000.app.github.dev/forum/post_json/',
       );
-
-      // Save raw JSON for debugging
-      setState(() {
-        _rawPostResponse = jsonEncode(postResponse);
-      });
-
       List<dynamic> postData = postResponse;
 
-      // 2. Fetch comments
+      // Fetch comments
       final commentResponse = await request.get(
         'https://ideal-eureka-r4gxwv6xrv5gh5565-8000.app.github.dev/forum/comment_json/',
       );
       List<dynamic> commentData = commentResponse;
 
-      // 3. Fetch user list (get_all_users)
+      // Fetch user list
       final userResponse = await request.get(
         'https://ideal-eureka-r4gxwv6xrv5gh5565-8000.app.github.dev/forum/get_all_users/',
       );
       List<dynamic> userData = userResponse['users'];
 
-      // 4. Fetch restaurants
+      // Fetch restaurants
       final restaurantResponse = await request.get(
         'https://ideal-eureka-r4gxwv6xrv5gh5565-8000.app.github.dev/forum/restaurant_json/',
       );
       List<dynamic> restaurantData = restaurantResponse;
 
-      // Build _users map (userId -> username)
+      // Map userId to username
       Map<int, String> fetchedUsers = {};
       for (var user in userData) {
         int userId = user['id'];
@@ -82,11 +113,11 @@ class _ForumPageState extends State<ForumPage> {
         fetchedUsers[userId] = username;
       }
 
-      // Convert postData to Post objects
+      // Convert post data to Post objects
       List<Post> fetchedPosts =
           postData.map((item) => Post.fromJson(item)).toList();
 
-      // Create comments map: postId -> list of Comments
+      // Map postId to list of Comments
       Map<int, List<Comment>> commentsMap = {};
       for (var item in commentData) {
         Comment comment = Comment.fromJson(item);
@@ -95,15 +126,14 @@ class _ForumPageState extends State<ForumPage> {
         }
       }
 
-      // Build restaurants map (id -> name)
+      // Map restaurant ID to restaurant name
       Map<String, String> fetchedRestaurants = {};
       for (var item in restaurantData) {
-        String restaurantId = item['pk'].toString(); // PK is numeric
+        String restaurantId = item['pk'].toString();
         String restaurantName = item['fields']['nama'];
         fetchedRestaurants[restaurantId] = restaurantName;
       }
 
-      // Update state
       setState(() {
         _users = fetchedUsers;
         _posts = fetchedPosts;
@@ -113,7 +143,7 @@ class _ForumPageState extends State<ForumPage> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Terjadi kesalahan: $e';
+        _errorMessage = 'Error fetching data: $e';
         _isLoading = false;
       });
     } finally {
@@ -122,7 +152,7 @@ class _ForumPageState extends State<ForumPage> {
   }
 
   // --------------------------------------------------------
-  // REFRESH
+  // REFRESH DATA
   // --------------------------------------------------------
   Future<void> _refreshData() async {
     setState(() {
@@ -130,85 +160,91 @@ class _ForumPageState extends State<ForumPage> {
       _errorMessage = '';
     });
     final request = context.read<CookieRequest>();
-    await fetchData(request);
+    await initializePage(request);
   }
 
   // --------------------------------------------------------
-  // GET USERNAME BY USER ID
-  // --------------------------------------------------------
-  String getUsername(int userId) {
-    return _users[userId] ?? 'Unknown User';
-  }
-
-  // --------------------------------------------------------
-  // BUILD
+  // BUILD WIDGET TREE
   // --------------------------------------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Remove the floatingActionButton, and instead build a custom header
-      body: SafeArea(
-        child: Container(
-          color: Colors.grey[200],
-          child: Column(
-            children: [
-              // -----------------------------------------
-              // HEADER: Yellow background, big text, copywriting, and a green "Posting di Forum" button
-              // -----------------------------------------
-              Container(
-                color: Colors.yellow[700],
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      appBar: AppBar(
+        title: Text(
+          currentUsername.isNotEmpty
+              ? "Welcome, $currentUsername!"
+              : "Jelajahi Makanan di Surabaya!",
+        ),
+        backgroundColor: Colors.orange,
+        centerTitle: true,
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _errorMessage.isNotEmpty
+              ? _buildErrorView()
+              : Column(
                   children: [
-                    Text(
-                      "Jelajahi Makanan di Surabaya!",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                    // ---------------------------------------
+                    // Header Section
+                    // ---------------------------------------
+                    Container(
+                      width: double.infinity,
+                      color: Colors.orange.shade100,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 16, horizontal: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Text(
+                            "Jelajahi Makanan di Surabaya!",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.orange,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            "Berbagi cerita bersama kulineran di Surabaya!",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          ElevatedButton(
+                            onPressed: () {
+                              // Navigate to Post Form Page
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const CreatePostPage()),
+                              ).then((value) => _refreshData());
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                            ),
+                            child: const Text(
+                              "Posting di Forum",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      "Berbagi cerita bersama kulineran di Surabaya!",
-                      style: TextStyle(fontSize: 16, color: Colors.black87),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () async {
-                        final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const CreatePostPage()),
-                        );
-                        if (result == true) {
-                          _refreshData();
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                      ),
-                      child: const Text("Posting di Forum"),
-                    ),
+                    // ---------------------------------------
+                    // Posts List View
+                    // ---------------------------------------
+                    Expanded(child: _buildPostListView()),
                   ],
                 ),
-              ),
-
-              // -----------------------------------------
-              // MAIN CONTENT: List of Posts (or error/loading)
-              // -----------------------------------------
-              Expanded(
-                child: _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : _errorMessage.isNotEmpty
-                        ? _buildErrorView()
-                        : _buildPostListView(),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
@@ -226,33 +262,15 @@ class _ForumPageState extends State<ForumPage> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          // Display error message
-          Expanded(
-            child: SingleChildScrollView(
-              child: SelectableText(
-                _errorMessage,
-                style: const TextStyle(fontSize: 14, color: Colors.red),
-              ),
-            ),
+          Text(
+            _errorMessage,
+            style: const TextStyle(fontSize: 14, color: Colors.red),
           ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: _refreshData,
             style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
             child: const Text("Coba Lagi"),
-          ),
-
-          // Debug: Show raw post response if needed
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(8.0),
-              child: SelectableText(
-                _rawPostResponse.isNotEmpty
-                    ? _rawPostResponse
-                    : "No data available.",
-                style: const TextStyle(fontSize: 14, color: Colors.black),
-              ),
-            ),
           ),
         ],
       ),
@@ -270,7 +288,7 @@ class _ForumPageState extends State<ForumPage> {
         itemBuilder: (context, index) {
           final post = _posts[index];
           final comments = postComments[post.pk] ?? [];
-          final username = getUsername(post.fields.user);
+          final username = _users[post.fields.user] ?? 'Unknown User';
 
           // Restaurant name (if any)
           final restaurantName = post.fields.restaurant != null
@@ -282,13 +300,23 @@ class _ForumPageState extends State<ForumPage> {
             comments: comments,
             username: username,
             onPostUpdated: _refreshData,
-            currentUserId: currentUserId,
+            currentUsername: currentUsername,
             restaurantName: restaurantName,
+            usersMap: _users, // Pass the users map to PostCard
           );
         },
       ),
     );
   }
+}
+
+// ---------------------------------------------------------------------------
+// UTILITY: sharePost (you can still adapt this to actually copy link, etc.)
+// ---------------------------------------------------------------------------
+void sharePost(BuildContext context) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text("URL telah disalin!")),
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -299,8 +327,9 @@ class PostCard extends StatefulWidget {
   final List<Comment> comments;
   final String username; // Display name of the post owner
   final VoidCallback onPostUpdated;
-  final int currentUserId; // ID of the currently logged-in user
+  final String currentUsername; // Username of the currently logged-in user
   final String? restaurantName;
+  final Map<int, String> usersMap; // Map of userId to username
 
   const PostCard({
     Key? key,
@@ -308,8 +337,9 @@ class PostCard extends StatefulWidget {
     required this.comments,
     required this.username,
     required this.onPostUpdated,
-    required this.currentUserId,
+    required this.currentUsername,
     required this.restaurantName,
+    required this.usersMap,
   }) : super(key: key);
 
   @override
@@ -324,9 +354,7 @@ class _PostCardState extends State<PostCard> {
   @override
   void initState() {
     super.initState();
-    // Retrieve 'likeCount' and 'isLiked' from the post object
     likeCount = widget.post.fields.likeCount;
-    isLiked = widget.post.fields.isLiked;
   }
 
   // --------------------------------------------------------
@@ -388,34 +416,6 @@ class _PostCardState extends State<PostCard> {
   }
 
   // --------------------------------------------------------
-  // SHOW DELETE CONFIRMATION DIALOG
-  // --------------------------------------------------------
-  void _confirmDeletePost() {
-    showDialog(
-      context: context,
-      builder: (BuildContext ctx) {
-        return AlertDialog(
-          title: const Text("Konfirmasi Hapus"),
-          content: const Text("Apakah Anda yakin ingin menghapus postingan ini?"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context), 
-              child: const Text("Batal"),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // close the dialog
-                deletePost();          // then proceed
-              },
-              child: const Text("Hapus", style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // --------------------------------------------------------
   // POST COMMENT
   // --------------------------------------------------------
   Future<void> postComment(String commentText) async {
@@ -457,7 +457,7 @@ class _PostCardState extends State<PostCard> {
   Widget build(BuildContext context) {
     final post = widget.post;
     final comments = widget.comments;
-    bool canDeletePost = (post.fields.user == widget.currentUserId);
+    bool canDeletePost = (widget.username == widget.currentUsername);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
@@ -483,9 +483,10 @@ class _PostCardState extends State<PostCard> {
                     backgroundColor: Colors.orange,
                     child: Icon(Icons.person, color: Colors.white),
                   ),
+
                   const SizedBox(width: 8),
 
-                  // Username & date
+                  // Username & date (left)
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -510,10 +511,10 @@ class _PostCardState extends State<PostCard> {
                     ),
                   ),
 
-                  // Delete button if user owns the post
+                  // Delete button on the right if user owns the post
                   if (canDeletePost)
                     IconButton(
-                      onPressed: _confirmDeletePost,
+                      onPressed: deletePost,
                       icon: const Icon(
                         Icons.delete_forever,
                         color: Colors.red,
@@ -552,26 +553,26 @@ class _PostCardState extends State<PostCard> {
               // ---------------------------------------
               // Post image (if any)
               // ---------------------------------------
+              if (post.fields.image != null && post.fields.image!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Image.network(post.fields.image!),
+                ),
 
+              const SizedBox(height: 8),
 
               // ---------------------------------------
               // Action row: Like, Comment, Share, Report
               // ---------------------------------------
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween, // Evenly space icons
                 children: [
-                  // Like icon + count
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: toggleLike,
-                        icon: Icon(
-                          isLiked ? Icons.thumb_up : Icons.thumb_up_alt_outlined,
-                          color: isLiked ? Colors.blue : Colors.grey,
-                        ),
-                      ),
-                      Text("$likeCount"),
-                    ],
+                  IconButton(
+                    onPressed: toggleLike,
+                    icon: Icon(
+                      isLiked ? Icons.thumb_up : Icons.thumb_up_alt_outlined,
+                      color: isLiked ? Colors.blue : Colors.grey,
+                    ),
                   ),
                   IconButton(
                     onPressed: () => setState(() {
@@ -584,16 +585,19 @@ class _PostCardState extends State<PostCard> {
                     icon: const Icon(Icons.share_outlined),
                   ),
                   IconButton(
-                    onPressed: _showReportDialog,
+                    onPressed: _showReportDialog, // Call the dialog function
                     icon: const Icon(Icons.flag_outlined, color: Colors.red),
                   ),
                 ],
               ),
 
               // ---------------------------------------
-              // Comments Section
+              // Comments Section with Divider
               // ---------------------------------------
-              if (showComments) _buildCommentsSection(comments),
+              if (showComments) ...[
+                const Divider(),
+                _buildCommentsSection(comments),
+              ],
             ],
           ),
         ),
@@ -619,46 +623,62 @@ class _PostCardState extends State<PostCard> {
   // --------------------------------------------------------
   // BUILD SINGLE COMMENT ITEM
   // --------------------------------------------------------
-  Widget _buildCommentItem(Comment comment) {
-    // In a real app, you’d want a user map: userId->username
-    // For simplicity, we are using `widget.username` only for the post owner.
-    // You could also pass in a dictionary of userId->username and do:
-    // final commentOwnerName = _users[comment.fields.user] ?? "Unknown User";
-    final bool canEditComment = (comment.fields.user == widget.currentUserId);
+ Widget _buildCommentItem(Comment comment) {
+  String commenterUsername =
+      widget.usersMap[comment.fields.user] ?? 'Unknown User';
+  bool canEditComment = (commenterUsername == widget.currentUsername);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Show only user ID or some placeholder since we don't have a direct name lookup:
-          Expanded(
-            child: RichText(
-              text: TextSpan(
-                style: const TextStyle(fontSize: 14, color: Colors.black),
-                children: [
-                  TextSpan(
-                    text: "User ${comment.fields.user}: ",
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  TextSpan(
-                    text: comment.fields.text,
-                  ),
-                ],
+  return Container(
+    margin: const EdgeInsets.only(bottom: 8),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Profile icon for commenter
+        const CircleAvatar(
+          radius: 12,
+          backgroundColor: Colors.orange,
+          child: Icon(Icons.person, color: Colors.white, size: 14),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Username in bold
+              Text(
+                "$commenterUsername: ",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color: Colors.black,
+                ),
               ),
-            ),
+              // Comment text
+              Expanded(
+                child: Text(
+                  comment.fields.text,
+                  style: const TextStyle(color: Colors.black, fontSize: 14),
+                ),
+              ),
+            ],
           ),
-          // Edit icon if user can edit
-          if (canEditComment)
-            IconButton(
-              onPressed: () => _editCommentDialog(comment),
-              icon: const Icon(Icons.edit, color: Colors.blue),
-              tooltip: "Edit Komentar",
+        ),
+        // Edit icon (blue) if user can edit
+        if (canEditComment)
+          IconButton(
+            icon: const Icon(
+              Icons.edit,
+              color: Colors.blue,
+              size: 20,
             ),
-        ],
-      ),
-    );
-  }
+            onPressed: () => _editCommentDialog(comment),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+          ),
+      ],
+    ),
+  );
+}
 
   // --------------------------------------------------------
   // COMMENT INPUT
@@ -784,11 +804,15 @@ class _PostCardState extends State<PostCard> {
 
       if (response['status'] == 'success') {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response['message'] ?? "Postingan berhasil dilaporkan!")),
+          SnackBar(
+              content: Text(
+                  response['message'] ?? "Postingan berhasil dilaporkan!")),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Gagal melaporkan: ${response['message']}")),
+          SnackBar(
+              content: Text(
+                  "Gagal melaporkan: ${response['message']}")),
         );
       }
     } catch (e) {
@@ -812,6 +836,7 @@ class _PostCardState extends State<PostCard> {
             builder: (BuildContext context, StateSetter setStateSB) {
               return DropdownButton<String>(
                 value: selectedReason,
+                isExpanded: true,
                 items: <String>[
                   "Konten Tidak Pantas",
                   "Spam atau Iklan",
@@ -840,7 +865,7 @@ class _PostCardState extends State<PostCard> {
             TextButton(
               onPressed: () {
                 Navigator.pop(context); // Close the dialog
-                reportPost(selectedReason); // Call the report function
+                reportPost(selectedReason); // Call the report function with the selected reason
               },
               child: const Text("Kirim"),
             ),
@@ -852,29 +877,5 @@ class _PostCardState extends State<PostCard> {
 }
 
 // ---------------------------------------------------------------------------
-// Utility: sharePost (example placeholder to copy link / share, etc.)
+// Example: CreatePostPage (PostForm)
 // ---------------------------------------------------------------------------
-void sharePost(BuildContext context) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text("URL telah disalin!")),
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Example: CreatePostPage – your existing screen to add new post
-// ---------------------------------------------------------------------------
-class CreatePostPage extends StatelessWidget {
-  const CreatePostPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Buat Post Baru"),
-      ),
-      body: Center(
-        child: Text("Form untuk buat postingan..."),
-      ),
-    );
-  }
-}
