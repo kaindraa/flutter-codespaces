@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
-import 'package:golekmakanrek_mobile/menu.dart';
-
+import 'package:provider/provider.dart';
+import 'package:golekmakanrek_mobile/screens/login.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,7 +10,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return Provider(
@@ -20,14 +18,15 @@ class MyApp extends StatelessWidget {
         return request;
       },
       child: MaterialApp(
-        title: 'GolekMakanRek!',
+        title: 'Golek Makan Rek',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 255, 255, 255)),
           useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromARGB(255, 255, 179, 0),
+          ).copyWith(secondary: const Color(0xFFFFFFFF)), 
         ),
-        home: MyHomePage(),
+        home: const LoginPage(),
       ),
     );
   }
 }
-
